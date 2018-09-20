@@ -1,0 +1,8 @@
+# Created by .ignore support plugin (hsz.mobi)
+node_modules/
+### VisualStudioCode template
+.vscode/
+### JetBrains
+.idea
+.fusebox
+examples/bundles

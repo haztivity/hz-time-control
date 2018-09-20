@@ -1,0 +1,16 @@
+include node:@haztivity/hz-navbar/src/_hzNavbar
+div(data-hz-pages)
+-
+    let times = {
+        "6611":{
+            "weight":1
+        },
+        "6612":{
+            "weight":1
+        },
+        "6613":{
+            "weight":0
+        }
+    }
+div(data-hz-component="HzTimeControl", data-opt-hz-time-control-time="1", data-opt-hz-time-control-times=times)
++hz-navbar

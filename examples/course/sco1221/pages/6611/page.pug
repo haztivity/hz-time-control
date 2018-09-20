@@ -1,0 +1,85 @@
+div
+    div.markdown-wrapper
+        :markdown-it(linkify)
+            # hz-time-control
+            HzTimeControl allows to "require" the user to spend a certain time in the pages by disabling the navigation until the specified time passes.
+
+            The time to spend in each page is dynamically resolved based on weights, by default all the pages have a weight of 1
+
+            The component needs to know the total time to spend in the course.
+
+            For example:
+            - Time to spend: 60 minutes
+            - Number of pages: 10, all with the same weight
+
+            When haztivity loads a page, checks the total time spend and resolves the time required for the current page.
+
+            First page load:
+            - Total time spent: 0
+            - Number of pages: 10
+            - Total weight of all pages: 10
+            - Time for each weight: 6
+            - Time required for the page: 6*1 = 6 minutes
+
+            The user completes the first page in 5 minutes:
+            - Time spent in page: 5
+            - Time required for the page: 6
+            - Time to wait: 6 - 5: 1 minute, the user must wait 1 minute
+
+            The system of weights works in the same way that in other context, like flexbox in css for example.
+
+            The applied formula: (time required for the course - total time spent in the course)/sum of weights
+
+            The options for the component could be provided in different ways.
+
+            ## Inline in the template
+            ```pug
+            -
+                let times = {
+                    "6611":{
+                        "weight":1
+                    },
+                    "6612":{
+                        "weight":2
+                    },
+                    "6613":{
+                        "weight":0
+                    }
+                }
+            div(data-hz-component="HzTimeControl", data-opt-hz-time-control-time="1", data-opt-hz-time-control-times=times)
+            ```
+            ```js
+            {
+                times:{
+                    "pageName1":{
+                        "weight":2// the weight for the page
+                    },
+                    "pageName2":{
+                        "weight":1
+                    }
+                }
+            }
+            ```
+            Or in the page declaration
+            ```typescript
+            export let page: PageRegister = PageFactory.createPage(
+                {
+                    title: "Start to use",
+                    name: "6611",
+                    resources: [
+                    ],
+                    template: template,
+                    timeControl:{
+                        weight:2
+                    }
+                }
+            );
+            ```
+
+            If both options are provided, the options in the page register will be used.
+
+            The student only will be required to wait once, the states of the pages in which the user has waited will be saved in suspend_data.
+
+            If scorm is not available, the user will be required to wait when the browser is refreshed
+
+            If the dev mode is enabled by `haztivity.enableDev()` the console will be print useful information for HzTimeControlComponent

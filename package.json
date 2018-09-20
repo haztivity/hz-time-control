@@ -1,0 +1,51 @@
+{
+  "name": "@haztivity/hz-time-control",
+  "version": "0.7.0",
+  "description": "A component to control the time that a user must spend.",
+  "main": "dist/hz-time-control.js",
+  "jsnext:main": "esm2015/hz-time-control.js",
+  "ts:main": "src/index.ts",
+  "types": "src/index.ts",
+  "typings": "src/index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "rimraf dist && rimraf esm2015 && rollup -c",
+    "doc": "rimraf docs & typedoc --mode modules --ignoreCompilerErrors --readme none --exclude **/index.ts --out docs ./src"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@https://github.com/haztivity/hz-time-control.git"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "homepage": "https://github.com/haztivity/hz-time-control",
+  "author": "Davinchi",
+  "license": "MIT",
+  "devDependencies": {
+    "@haztivity/cli": "^0.5.1",
+    "@haztivity/hz-navbar": "^0.7",
+    "@haztivity/hz-tooltip": "^0.7.1",
+    "@types/node": "^9.3.0",
+    "concurrently": "^3.5.1",
+    "jquery": "^3.3.1",
+    "jstransformer-markdown-it": "^2.0.0",
+    "lodash.camelcase": "^4.3.0",
+    "prismjs": "^1.12.2",
+    "rimraf": "^2.6.2",
+    "rollup": "^0.57.1",
+    "rollup-plugin-license": "^0.6.0",
+    "rollup-plugin-typescript": "^0.8.1",
+    "rollup-plugin-typescript2": "^0.12.0",
+    "rollup-plugin-uglify": "^3.0.0",
+    "rollup-plugin-uglify-es": "0.0.1",
+    "typedoc": "^0.11.1",
+    "typedoc-plugin-external-module-name": "^1.1.1",
+    "typescript": "^2.7.2",
+    "uglify-js": "^3.3.16"
+  },
+  "dependencies": {
+    "@haztivity/core": "^0.7.0",
+    "jq-crossword": "^1.2.1"
+  }
+}
