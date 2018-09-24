@@ -1,4 +1,4 @@
-# hz-crossword
+# hz-timecontrol
  HzTimeControl allows to "require" the user to spend a certain time in the pages by disabling the navigation until the specified time passes.
 
 ## Install
