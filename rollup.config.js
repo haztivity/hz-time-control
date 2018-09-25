@@ -1,50 +1,57 @@
-import typescript from 'rollup-plugin-typescript';
-import uglify from 'rollup-plugin-uglify';
-import uglifyEs from 'rollup-plugin-uglify-es';
-import license from 'rollup-plugin-license';
-import {name} from "./package.json";
-import camelCase from "lodash.camelCase";
-const src = "./src/index.ts",
-    fileName=name.replace(/@.*\//,""),
+const typescript = require('rollup-plugin-typescript');
+const uglify = require('rollup-plugin-uglify');
+const uglifyEs = require("rollup-plugin-uglify-es");
+const license = require('rollup-plugin-license');
+const camelCase=  require("lodash.camelCase");
+const banner=`@license <%= pkg.name %> v<%= pkg.version %>
+(c) <%= moment().format('YYYY') %> Finsi, Inc.
+`,
+    name = "HzTimeControl",
+    fileName=name,
     packageName =camelCase(name),
-    banner=`@license ${fileName} v<%= pkg.version %>
-(c) <%= moment().format('YYYY') %> <%= pkg.author %>, Inc.
-License <%= pkg.license %>
-`;
-export default [
+    src = "./src/HzTimeControl.ts",
+    external=(id)=>id.indexOf("node_modules")!=-1,
+    globals= {
+        jquery: '$'
+    };
+module.exports= [
     {
         input: src,
         output: {
-            file: `dist/${fileName}.js`,
-            name:packageName,
-            format: 'umd'
+            file: `dist/${name}.js`,
+            name:name,
+            format: 'umd',
+            globals:globals
         },
         plugins: [
             typescript({
-                typescript:require("typescript")
+                typescript:require("typescript"),
             }),
             license({
                 banner:banner
             })
-        ]
+        ],
+        external:external
     },
     //min
     {
         input: src,
         output: {
-            file: `dist/${fileName}.min.js`,
-            name:packageName,
-            format: 'umd'
+            file: `dist/${name}.min.js`,
+            name:name,
+            format: 'umd',
+            globals:globals
         },
         plugins: [
             typescript({
-                typescript:require("typescript")
+                typescript:require("typescript"),
             }),
             uglify(),
             license({
                 banner:banner
             })
-        ]
+        ],
+        external:external
     },
     //esm2015
     {
@@ -52,7 +59,7 @@ export default [
         output: {
             file: `esm2015/${fileName}.js`,
             name:packageName,
-            format: 'umd'
+            format: 'es'
         },
         plugins: [
             typescript({
@@ -62,7 +69,8 @@ export default [
             license({
                 banner:banner
             })
-        ]
+        ],
+        external:external
     },
     //esm2015 min
     {
@@ -70,7 +78,7 @@ export default [
         output: {
             file: `esm2015/${fileName}.min.js`,
             name:packageName,
-            format: 'umd'
+            format: 'es'
         },
         plugins: [
             typescript({
@@ -81,6 +89,7 @@ export default [
             license({
                 banner:banner
             })
-        ]
-    },
-]
+        ],
+        external:external
+    }
+];
