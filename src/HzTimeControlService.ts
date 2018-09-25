@@ -25,8 +25,12 @@ export class HzTimeControlService{
             "one",
             "off"
         ];
-        for (let method of publish) {
-            this[method] = HzTimeControlComponent.__instance[method].bind(HzTimeControlComponent.__instance);
+        if(HzTimeControlComponent.__instance) {
+            for (let method of publish) {
+                this[method] = HzTimeControlComponent.__instance[method].bind(HzTimeControlComponent.__instance);
+            }
+        }else{
+            console.warn("[HzTimeControlService] Any HzTimeControlComponent available");
         }
     }
     public isWaiting():boolean{

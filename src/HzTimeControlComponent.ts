@@ -14,7 +14,6 @@ import {
     ScormService,
     ScoController
 } from "@haztivity/core";
-import "jquery-ui-dist/jquery-ui";
 @Component(
     {
         name: "HzTimeControl",
@@ -151,6 +150,7 @@ export class HzTimeControlComponent extends ComponentController {
         this._currentTimeToWait = null;
     }
     protected _startWaiting(){
+        let result:boolean = false;
         if(!this._waiting){
             this._waiting = true;
             this._Navigator.setNextDisabled(true);
@@ -170,7 +170,9 @@ export class HzTimeControlComponent extends ComponentController {
             }
             this._eventEmitter.trigger(HzTimeControlComponent.ON_WAITING_STARTS,[this._currentPage.getPageName(),this._currentTimeToWait]);
             this._eventEmitter.globalEmitter.trigger(HzTimeControlComponent.ON_WAITING_STARTS,[this._currentPage.getPageName(),this._currentTimeToWait]);
+            return true;
         }
+        return result;
     }
     protected _initLogger(pendingSeconds,originalSeconds){
         if(this._debugWaitingTimeInterval){
