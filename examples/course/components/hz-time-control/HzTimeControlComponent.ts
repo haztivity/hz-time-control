@@ -53,6 +53,7 @@ export class HzTimeControlComponent extends ComponentController {
     protected _pageChangeCompleted:boolean;
     protected _startWaitingDate:Date;
     protected _state;
+    protected _$message;
     constructor(_$: JQueryStatic, _EventEmitterFactory, protected _Navigator: Navigator, protected _PageManager: PageManager, protected _DataOptions, protected _ScormService, protected _DevTools) {
         super(_$, _EventEmitterFactory);
         if(HzTimeControlComponent.__instance){
@@ -99,6 +100,10 @@ export class HzTimeControlComponent extends ComponentController {
                 options.completed = state.indexOf(name) != -1;
                 this._times.set(name,options);
             }
+        }
+        if(this._options.waitingEnd) {
+            this._$message = this._$(this._options.waitingEnd);
+            this._$message.hide();
         }
         this._assignEvents();
     }
@@ -200,6 +205,9 @@ export class HzTimeControlComponent extends ComponentController {
     }
     protected _onWaitingTimeComplete(){
         this._endWaiting();
+        if(this._$message) {
+            this._$message.show();
+        }
         const name = this._currentPage.getPageName();
         let options = this._times.get(name);
         options.completed = true;
@@ -251,6 +259,9 @@ export class HzTimeControlComponent extends ComponentController {
     protected _completeCurrentProcess(cancelled:boolean = false){
         this._endWaiting();
         this._currentTimeToWait = null;
+        if(this._$message) {
+            this._$message.hide();
+        }
         if (this._currentPage) {
             this._currentPage.getPage().off("." + HzTimeControlComponent.NAMESPACE)
         }

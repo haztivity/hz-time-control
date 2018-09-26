@@ -36,13 +36,13 @@ export class HzTimeControlQuestionsComponent extends HzTimeControlComponent {
     protected static readonly _DEFAULTS = {
         scale:false
     };
-
     constructor(_$: JQueryStatic, _EventEmitterFactory, protected _Navigator: Navigator, protected _PageManager: PageManager, protected _DataOptions, protected _ScormService, protected _DevTools, protected _HzQuestionsForPagesService) {
         super(_$, _EventEmitterFactory, _Navigator,  _PageManager, _DataOptions,  _ScormService,  _DevTools);
         if(!_HzQuestionsForPagesService.hasInstance()){
             throw "[HzTimeControlQuestionsComponent] An instance of HzQuestionsForPagesComponent is required";
         }
     }
+
     _startWaiting(){
         let result = super._startWaiting();
         if(result){
@@ -52,6 +52,6 @@ export class HzTimeControlQuestionsComponent extends HzTimeControlComponent {
     }
     _endWaiting(){
         super._endWaiting();
-        this._HzQuestionsForPagesService.stop();
     }
+
 }

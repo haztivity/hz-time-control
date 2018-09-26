@@ -42,7 +42,7 @@ div(data-hz-pages)
                     }
                 ]
             },
-            "6622":{
+            "6612":{
                 "questions":[
                     {
                         "content":"Question 2",
@@ -68,6 +68,7 @@ div(
     data-opt-hz-questions-for-pages-options=options,
     data-opt-hz-questions-for-pages-toggler="#toggleQuestions"
 )
+    p#waitingEnd Ya puede avanzar a la siguiente página. Puede cerrar el cuestionario actual mediante el botón de cerrar.
     div(data-hz-questions-for-pages-quiz)
 -
     let times = {
@@ -81,5 +82,5 @@ div(
             "weight":0
         }
     }
-div(data-hz-component="HzTimeControlQuestions", data-opt-hz-time-control-questions-time="1", data-opt-hz-time-control-questions-times=times)
+div(data-hz-component="HzTimeControlQuestions", data-opt-hz-time-control-questions-time="1", data-opt-hz-time-control-questions-times=times, data-opt-hz-time-control-questions-waiting-end="#waitingEnd")
 +hz-navbar
