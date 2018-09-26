@@ -1,6 +1,6 @@
 {
   "name": "@haztivity/hz-time-control",
-  "version": "0.7.0-beta.0",
+  "version": "0.7.0-beta.1",
   "description": "A component to control the time that a user must spend.",
   "main": "dist/HzTimeControl.js",
   "ts:main": "src/HzTimeControl.ts",
