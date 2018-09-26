@@ -1,6 +1,6 @@
 {
   "name": "@haztivity/hz-time-control",
-  "version": "0.7.0",
+  "version": "0.0.0",
   "description": "A component to control the time that a user must spend.",
   "main": "dist/HzTimeControl.js",
   "ts:main": "src/HzTimeControl.ts",
@@ -24,7 +24,7 @@
   "license": "MIT",
   "devDependencies": {
     "@haztivity/cli": "^0.5.1",
-    "@haztivity/hz-navbar": "file:../hz-navbar",
+    "@haztivity/hz-navbar": "^0.7.6-beta.1",
     "@haztivity/hz-tooltip": "^0.7.1",
     "@types/node": "^9.3.0",
     "concurrently": "^3.5.1",
@@ -43,5 +43,8 @@
     "typescript": "^2.7.2",
     "uglify-js": "^3.3.25"
   },
-  "dependencies": {}
+  "dependencies": {
+    "@haztivity/core": "^0.7.7-beta.0",
+    "@haztivity/hz-questions-for-pages": "^0.7.0-beta.0"
+  }
 }
