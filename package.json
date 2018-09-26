@@ -45,6 +45,6 @@
   },
   "dependencies": {
     "@haztivity/core": "^0.7.7-beta.0",
-    "@haztivity/hz-questions-for-pages": "^0.7.0-beta.0"
+    "@haztivity/hz-questions-for-pages": "^0.7.0-beta.1"
   }
 }
