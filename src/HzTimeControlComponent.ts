@@ -35,6 +35,8 @@ export class HzTimeControlComponent extends ComponentController {
     public static readonly ON_PROCESS_COMPLETE = `${HzTimeControlComponent.NAMESPACE}:process-complete`;
     public static readonly ON_WAITING_STARTS = `${HzTimeControlComponent.NAMESPACE}:waitingstarts`;
     public static readonly ON_WAITING_COMPLETE = `${HzTimeControlComponent.NAMESPACE}:waitingcomplete`;
+    protected static readonly CLASS_WAITING = "hz-time-control__waiting";
+    protected static readonly CLASS_COMPONENT = "hz-time-control";
     protected static __instance;
     protected static readonly _DEFAULTS = {
         scale:false
@@ -60,6 +62,7 @@ export class HzTimeControlComponent extends ComponentController {
             throw "[HzTimeControlComponent] There must be only one component of HzTimeControl";
         }
         HzTimeControlComponent.__instance = this;
+        this._$("body").addClass(HzTimeControlComponent.CLASS_COMPONENT);
     }
 
     init(options, config?) {
@@ -93,13 +96,12 @@ export class HzTimeControlComponent extends ComponentController {
         //get the weights from pages and set into options
         const pages = this._PageManager.getPages();
         for(let pageImplementation of pages){
-            const options = (<any>pageImplementation.getPage().getOptions()).timeControl;
-            if(options){
-                const name = pageImplementation.getPageName();
-                options.weight = options.weight != undefined ? Math.round(options.weight) : 1;
-                options.completed = state.indexOf(name) != -1;
-                this._times.set(name,options);
-            }
+            let options = (<any>pageImplementation.getPage().getOptions()).timeControl || {};
+            const name = pageImplementation.getPageName();
+            const options2 = this._options.times[name] || {};
+            options = this._$.extend(true,{weight:1},options2,options);
+            options.completed = state.indexOf(name) != -1;
+            this._times.set(name,options);
         }
         if(this._options.waitingEnd) {
             this._$message = this._$(this._options.waitingEnd);
@@ -153,11 +155,13 @@ export class HzTimeControlComponent extends ComponentController {
         }
         this._startWaitingDate = null;
         this._currentTimeToWait = null;
+        this._$("body").removeClass(HzTimeControlComponent.CLASS_WAITING);
     }
     protected _startWaiting(){
         let result:boolean = false;
         if(!this._waiting){
             this._waiting = true;
+            this._$("body").addClass(HzTimeControlComponent.CLASS_WAITING);
             this._Navigator.setNextDisabled(true);
             let pageTime = (this._dateCurrentPageEnd ? this._dateCurrentPageEnd.getTime() : new Date().getTime())- this._dateCurrentPageStart.getTime(),
                 timeToWait = Math.round(this._currentPageRequiredTime - pageTime);
