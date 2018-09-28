@@ -41,8 +41,8 @@ var HzTimeControlQuestionsComponent = /** @class */ (function (_super) {
         var pages = Array.from(this._times.values());
         for (var _i = 0, pages_1 = pages; _i < pages_1.length; _i++) {
             var page = pages_1[_i];
-            page.autoOpen = page.autoOpen || HzTimeControlQuestionsComponent_1._DEFAULTS.autoOpen;
-            page.autoOpenDelay = page.autoOpenDelay || HzTimeControlQuestionsComponent_1._DEFAULTS.autoOpenDelay;
+            page.autoOpen = page.autoOpen || options.autoOpen;
+            page.autoOpenDelay = page.autoOpenDelay || options.autoOpenDelay;
         }
     };
     HzTimeControlQuestionsComponent.prototype._assignEvents = function () {

@@ -48,8 +48,8 @@ export class HzTimeControlQuestionsComponent extends HzTimeControlComponent {
         super.init(options,config);
         let pages = Array.from(this._times.values());
         for(let page of pages){
-            page.autoOpen = page.autoOpen || HzTimeControlQuestionsComponent._DEFAULTS.autoOpen;
-            page.autoOpenDelay = page.autoOpenDelay || HzTimeControlQuestionsComponent._DEFAULTS.autoOpenDelay;
+            page.autoOpen = page.autoOpen || options.autoOpen;
+            page.autoOpenDelay = page.autoOpenDelay || options.autoOpenDelay;
         }
     }
     _assignEvents(){
