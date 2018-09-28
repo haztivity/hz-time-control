@@ -56,6 +56,7 @@ export class HzTimeControlComponent extends ComponentController {
     protected _debugWaitingTimeInterval;
     protected _pageChangeCompleted:boolean;
     protected _startWaitingDate:Date;
+    protected _startWaitingMoment;
     protected _state;
     protected _$message;
     protected _$progressBar;
@@ -176,6 +177,7 @@ export class HzTimeControlComponent extends ComponentController {
             this._progressBarInterval = null;
         }
         this._startWaitingDate = null;
+        this._startWaitingMoment = null;
         this._currentTimeToWait = null;
         this._$("body").removeClass(HzTimeControlComponent.CLASS_WAITING);
     }
@@ -189,6 +191,7 @@ export class HzTimeControlComponent extends ComponentController {
                 timeToWait = Math.round(this._currentPageRequiredTime - pageTime);
             this._currentTimeToWait = timeToWait >= 2000 ? timeToWait : 2000;
             this._startWaitingDate = new Date();
+            this._startWaitingMoment = moment(this._startWaitingDate);
             let that = this;
             this._currentWaitTimeout = setTimeout(function(){that._onWaitingTimeComplete()},this._currentTimeToWait);
             if(this._DevTools.isEnabled()){
@@ -214,15 +217,18 @@ export class HzTimeControlComponent extends ComponentController {
     }
     protected _updateProgress(){
         const now = new Date();
-        const timeStart = this._startWaitingDate.getTime();
-        const timeWaited = now.getTime() - timeStart;
-        const progress = parseFloat(((timeWaited*100)/this._currentTimeToWait).toFixed(2));
-        this._$progressBar.progressbar("option","value",progress);
-        if(this._$progressTime.length > 0) {
-            const time = moment.duration(this._currentTimeToWait-timeWaited, "milliseconds");
-            this._$progressTime.text(time.minutes()+":"+time.seconds());
+        const timeWaited = moment(now).diff(this._startWaitingMoment);
+        const timeLeft = this._currentTimeToWait-timeWaited;
+        let progress;
+        if(timeLeft >= 1000){
+            progress =  parseFloat(((timeWaited * 100) / this._currentTimeToWait).toFixed(2));
+        }else{
+            progress = 100;
         }
-
+        this._$progressBar.progressbar("option", "value", progress);
+        if (this._$progressTime.length > 0 && timeLeft > 0) {
+            this._$progressTime.text(moment(timeLeft).format("mm:ss"));
+        }
     }
     protected _initLogger(pendingSeconds,originalSeconds){
         if(this._debugWaitingTimeInterval){

@@ -143,6 +143,7 @@ var HzTimeControlComponent = /** @class */ (function (_super) {
             this._progressBarInterval = null;
         }
         this._startWaitingDate = null;
+        this._startWaitingMoment = null;
         this._currentTimeToWait = null;
         this._$("body").removeClass(HzTimeControlComponent_1.CLASS_WAITING);
     };
@@ -155,6 +156,7 @@ var HzTimeControlComponent = /** @class */ (function (_super) {
             var pageTime = (this._dateCurrentPageEnd ? this._dateCurrentPageEnd.getTime() : new Date().getTime()) - this._dateCurrentPageStart.getTime(), timeToWait = Math.round(this._currentPageRequiredTime - pageTime);
             this._currentTimeToWait = timeToWait >= 2000 ? timeToWait : 2000;
             this._startWaitingDate = new Date();
+            this._startWaitingMoment = moment(this._startWaitingDate);
             var that_1 = this;
             this._currentWaitTimeout = setTimeout(function () { that_1._onWaitingTimeComplete(); }, this._currentTimeToWait);
             if (this._DevTools.isEnabled()) {
@@ -180,13 +182,18 @@ var HzTimeControlComponent = /** @class */ (function (_super) {
     };
     HzTimeControlComponent.prototype._updateProgress = function () {
         var now = new Date();
-        var timeStart = this._startWaitingDate.getTime();
-        var timeWaited = now.getTime() - timeStart;
-        var progress = parseFloat(((timeWaited * 100) / this._currentTimeToWait).toFixed(2));
+        var timeWaited = moment(now).diff(this._startWaitingMoment);
+        var timeLeft = this._currentTimeToWait - timeWaited;
+        var progress;
+        if (timeLeft >= 1000) {
+            progress = parseFloat(((timeWaited * 100) / this._currentTimeToWait).toFixed(2));
+        }
+        else {
+            progress = 100;
+        }
         this._$progressBar.progressbar("option", "value", progress);
-        if (this._$progressTime.length > 0) {
-            var time = moment.duration(this._currentTimeToWait - timeWaited, "milliseconds");
-            this._$progressTime.text(time.minutes() + ":" + time.seconds());
+        if (this._$progressTime.length > 0 && timeLeft > 0) {
+            this._$progressTime.text(moment(timeLeft).format("mm:ss"));
         }
     };
     HzTimeControlComponent.prototype._initLogger = function (pendingSeconds, originalSeconds) {
