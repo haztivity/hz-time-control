@@ -14,6 +14,7 @@ import {
     ScormService,
     ScoController
 } from "@haztivity/core";
+import * as moment from "moment";
 @Component(
     {
         name: "HzTimeControl",
@@ -39,7 +40,8 @@ export class HzTimeControlComponent extends ComponentController {
     protected static readonly CLASS_COMPONENT = "hz-time-control";
     protected static __instance;
     protected static readonly _DEFAULTS = {
-        scale:false
+        slope:0,
+        progressbar:{}
     };
     protected _currentPage:PageImplementation;
     protected _dateCurrentPageStart:Date;
@@ -56,6 +58,11 @@ export class HzTimeControlComponent extends ComponentController {
     protected _startWaitingDate:Date;
     protected _state;
     protected _$message;
+    protected _$progressBar;
+    protected _$progressTime;
+    protected _progressBar;
+    protected _progressDuration;
+    protected _progressBarInterval;
     constructor(_$: JQueryStatic, _EventEmitterFactory, protected _Navigator: Navigator, protected _PageManager: PageManager, protected _DataOptions, protected _ScormService, protected _DevTools) {
         super(_$, _EventEmitterFactory);
         if(HzTimeControlComponent.__instance){
@@ -107,6 +114,16 @@ export class HzTimeControlComponent extends ComponentController {
             this._$message = this._$(this._options.waitingEnd);
             this._$message.hide();
         }
+        if(this._options.progressBar) {
+            this._$progressBar = this._$(this._options.progressBar);
+            if(this._$progressBar.length > 0) {
+                this._$progressBar.progressbar(this._options.progressbar);
+                this._progressBar = this._$progressBar.progressbar("instance");
+            }
+        }
+        if(this._options.progressTime){
+            this._$progressTime = this._$(this._options.progressTime);
+        }
         this._assignEvents();
     }
     /**
@@ -126,13 +143,14 @@ export class HzTimeControlComponent extends ComponentController {
     protected _getOptionsForPage(pageName){
         return this._times.get(pageName);
     }
-    protected _getCurrentWeight(){
+    protected _getCurrentWeight(slope=0){
         let pages:PageImplementation[] = this._PageManager.getPages(),
             weight = 0;
-        for(let pageImplementation of pages){
+        for (let pageIndex = 0, pagesLength = pages.length; pageIndex < pagesLength; pageIndex++) {
+            let pageImplementation = pages[pageIndex];
             const options = this._getOptionsForPage(pageImplementation.getPageName());
             if(!options.completed){
-                weight += options.weight;
+                weight += ((slope*(pageIndex))+1)*options.weight;
             }
         }
         return weight;
@@ -152,6 +170,10 @@ export class HzTimeControlComponent extends ComponentController {
         if(this._debugWaitingTimeInterval) {
             clearInterval(this._debugWaitingTimeInterval);
             this._debugWaitingTimeInterval = null;
+        }
+        if(this._progressBarInterval){
+            clearInterval(this._progressBarInterval);
+            this._progressBarInterval = null;
         }
         this._startWaitingDate = null;
         this._currentTimeToWait = null;
@@ -177,11 +199,30 @@ export class HzTimeControlComponent extends ComponentController {
                 });
                 this._initLogger(timeInSeconds,timeInSeconds);
             }
+            if(this._progressBar){
+                const that = this;
+                this._updateProgress();
+                this._progressBarInterval = setInterval(function(){
+                    that._updateProgress();
+                },1000);
+            }
             this._eventEmitter.trigger(HzTimeControlComponent.ON_WAITING_STARTS,[this._currentPage.getPageName(),this._currentTimeToWait]);
             this._eventEmitter.globalEmitter.trigger(HzTimeControlComponent.ON_WAITING_STARTS,[this._currentPage.getPageName(),this._currentTimeToWait]);
             return true;
         }
         return result;
+    }
+    protected _updateProgress(){
+        const now = new Date();
+        const timeStart = this._startWaitingDate.getTime();
+        const timeWaited = now.getTime() - timeStart;
+        const progress = parseFloat(((timeWaited*100)/this._currentTimeToWait).toFixed(2));
+        this._$progressBar.progressbar("option","value",progress);
+        if(this._$progressTime.length > 0) {
+            const time = moment.duration(this._currentTimeToWait-timeWaited, "milliseconds");
+            this._$progressTime.text(time.minutes()+":"+time.seconds());
+        }
+
     }
     protected _initLogger(pendingSeconds,originalSeconds){
         if(this._debugWaitingTimeInterval){
@@ -235,22 +276,32 @@ export class HzTimeControlComponent extends ComponentController {
         this._currentPage = pageImplementation;
         const name = pageImplementation.getPageName();
         const options = this._getOptionsForPage(name);
+        debugger;
         if(options.weight > 0 && !options.completed){
             this._eventEmitter.trigger(HzTimeControlComponent.ON_PROCESS_STARTS,[this._currentPage.getPageName(),this._currentTimeToWait]);
             this._eventEmitter.globalEmitter.trigger(HzTimeControlComponent.ON_PROCESS_STARTS,[this._currentPage.getPageName(),this._currentTimeToWait]);
             this._dateCurrentPageStart = new Date();
-            const pageWeight = this._getCurrentWeight();
-            const timeForWeight = Math.round((this._totalTimeInMillis - this._currentSco.getTotalTime(true)) / pageWeight);
-            this._currentPageRequiredTime =Math.round(timeForWeight*options.weight);
+            const courseTotalTime = 0;//this._currentSco.getTotalTime(true);
+            const totalWeight = this._getCurrentWeight(this._options.slope);
+            const timeForWeight = Math.round((this._totalTimeInMillis - courseTotalTime) / totalWeight);
+            const pageWeight = ((this._options.slope * this._Navigator.getCurrentPageIndex())+1)*options.weight;
+            this._currentPageRequiredTime =Math.round(timeForWeight*pageWeight);
             if(this._DevTools.isEnabled()){
+                const devWeight = this._getCurrentWeight();
+                const devTime = Math.round((this._totalTimeInMillis - courseTotalTime) / devWeight);
                 console.debug(`[HzTimeControlComponent] Starting process. Data:`,{
-                    totalWeight:this._getCurrentWeight(),
+                    totalWeight:devWeight,
+                    totalWeightWithSlope:totalWeight,
                     totalTimeRequired:this._options.time+" minute/s",
                     totalTimeSpend:this._currentSco.getTotalTimeFormatted(true),
                     currentPage:pageImplementation.getPageName(),
-                    pageWeight:pageWeight,
-                    timeForEachWeight:timeForWeight/1000+" seconds",
-                    timeRequiredForPage:this._currentPageRequiredTime/1000+" seconds"
+                    pageIndex : this._Navigator.getCurrentPageIndex(),
+                    pageWeight:options.weight,
+                    pageWeightWithSlope:pageWeight,
+                    timeForEachWeight:devTime/1000+" seconds",
+                    timeForEachWeightWithSlope: timeForWeight/1000+" seconds",
+                    timeRequiredForPage:Math.round(devTime*options.weight)/1000+" seconds",
+                    timeRequiredForPageWithSlope:this._currentPageRequiredTime/1000+" seconds"
                 });
             }
             pageImplementation.getPage().off("." + HzTimeControlComponent.NAMESPACE).on(

@@ -6,6 +6,8 @@ import template from "./sco.pug";
 import "./main.scss";
 import "./markdown.scss";
 import "./prism-github.scss";
+import "jquery-ui-dist/jquery-ui.structure.css";
+import "jquery-ui-dist/jquery-ui.theme.css";
 import {ScoFactory, Sco, ISco} from "@haztivity/core";
 import {HzQuestionsForPagesComponent} from "@haztivity/hz-questions-for-pages";
 import {HzTimeControlQuestionsComponent} from "../components/hz-time-control/HzTimeControl";

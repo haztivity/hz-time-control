@@ -24,7 +24,7 @@
   "license": "MIT",
   "devDependencies": {
     "@haztivity/cli": "^0.5.1",
-    "@haztivity/hz-navbar": "^0.7.6-beta.1",
+    "@haztivity/hz-navbar": "^0.7.6",
     "@haztivity/hz-tooltip": "^0.7.1",
     "@types/node": "^9.3.0",
     "concurrently": "^3.5.1",
@@ -45,6 +45,7 @@
   },
   "dependencies": {
     "@haztivity/core": "^0.7.7",
-    "@haztivity/hz-questions-for-pages": "^0.7.0"
+    "@haztivity/hz-questions-for-pages": "^0.7.0",
+    "moment": "^2.22.2"
   }
 }

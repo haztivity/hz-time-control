@@ -17,6 +17,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var core_1 = require("@haztivity/core");
+var moment = require("moment");
 var HzTimeControlComponent = /** @class */ (function (_super) {
     __extends(HzTimeControlComponent, _super);
     function HzTimeControlComponent(_$, _EventEmitterFactory, _Navigator, _PageManager, _DataOptions, _ScormService, _DevTools) {
@@ -80,6 +81,16 @@ var HzTimeControlComponent = /** @class */ (function (_super) {
             this._$message = this._$(this._options.waitingEnd);
             this._$message.hide();
         }
+        if (this._options.progressBar) {
+            this._$progressBar = this._$(this._options.progressBar);
+            if (this._$progressBar.length > 0) {
+                this._$progressBar.progressbar(this._options.progressbar);
+                this._progressBar = this._$progressBar.progressbar("instance");
+            }
+        }
+        if (this._options.progressTime) {
+            this._$progressTime = this._$(this._options.progressTime);
+        }
         this._assignEvents();
     };
     /**
@@ -99,13 +110,14 @@ var HzTimeControlComponent = /** @class */ (function (_super) {
     HzTimeControlComponent.prototype._getOptionsForPage = function (pageName) {
         return this._times.get(pageName);
     };
-    HzTimeControlComponent.prototype._getCurrentWeight = function () {
+    HzTimeControlComponent.prototype._getCurrentWeight = function (slope) {
+        if (slope === void 0) { slope = 0; }
         var pages = this._PageManager.getPages(), weight = 0;
-        for (var _i = 0, pages_2 = pages; _i < pages_2.length; _i++) {
-            var pageImplementation = pages_2[_i];
+        for (var pageIndex = 0, pagesLength = pages.length; pageIndex < pagesLength; pageIndex++) {
+            var pageImplementation = pages[pageIndex];
             var options = this._getOptionsForPage(pageImplementation.getPageName());
             if (!options.completed) {
-                weight += options.weight;
+                weight += ((slope * (pageIndex)) + 1) * options.weight;
             }
         }
         return weight;
@@ -125,6 +137,10 @@ var HzTimeControlComponent = /** @class */ (function (_super) {
         if (this._debugWaitingTimeInterval) {
             clearInterval(this._debugWaitingTimeInterval);
             this._debugWaitingTimeInterval = null;
+        }
+        if (this._progressBarInterval) {
+            clearInterval(this._progressBarInterval);
+            this._progressBarInterval = null;
         }
         this._startWaitingDate = null;
         this._currentTimeToWait = null;
@@ -149,11 +165,29 @@ var HzTimeControlComponent = /** @class */ (function (_super) {
                 });
                 this._initLogger(timeInSeconds, timeInSeconds);
             }
+            if (this._progressBar) {
+                var that_2 = this;
+                this._updateProgress();
+                this._progressBarInterval = setInterval(function () {
+                    that_2._updateProgress();
+                }, 1000);
+            }
             this._eventEmitter.trigger(HzTimeControlComponent_1.ON_WAITING_STARTS, [this._currentPage.getPageName(), this._currentTimeToWait]);
             this._eventEmitter.globalEmitter.trigger(HzTimeControlComponent_1.ON_WAITING_STARTS, [this._currentPage.getPageName(), this._currentTimeToWait]);
             return true;
         }
         return result;
+    };
+    HzTimeControlComponent.prototype._updateProgress = function () {
+        var now = new Date();
+        var timeStart = this._startWaitingDate.getTime();
+        var timeWaited = now.getTime() - timeStart;
+        var progress = parseFloat(((timeWaited * 100) / this._currentTimeToWait).toFixed(2));
+        this._$progressBar.progressbar("option", "value", progress);
+        if (this._$progressTime.length > 0) {
+            var time = moment.duration(this._currentTimeToWait - timeWaited, "milliseconds");
+            this._$progressTime.text(time.minutes() + ":" + time.seconds());
+        }
     };
     HzTimeControlComponent.prototype._initLogger = function (pendingSeconds, originalSeconds) {
         if (this._debugWaitingTimeInterval) {
@@ -206,22 +240,32 @@ var HzTimeControlComponent = /** @class */ (function (_super) {
         this._currentPage = pageImplementation;
         var name = pageImplementation.getPageName();
         var options = this._getOptionsForPage(name);
+        debugger;
         if (options.weight > 0 && !options.completed) {
             this._eventEmitter.trigger(HzTimeControlComponent_1.ON_PROCESS_STARTS, [this._currentPage.getPageName(), this._currentTimeToWait]);
             this._eventEmitter.globalEmitter.trigger(HzTimeControlComponent_1.ON_PROCESS_STARTS, [this._currentPage.getPageName(), this._currentTimeToWait]);
             this._dateCurrentPageStart = new Date();
-            var pageWeight = this._getCurrentWeight();
-            var timeForWeight = Math.round((this._totalTimeInMillis - this._currentSco.getTotalTime(true)) / pageWeight);
-            this._currentPageRequiredTime = Math.round(timeForWeight * options.weight);
+            var courseTotalTime = 0; //this._currentSco.getTotalTime(true);
+            var totalWeight = this._getCurrentWeight(this._options.slope);
+            var timeForWeight = Math.round((this._totalTimeInMillis - courseTotalTime) / totalWeight);
+            var pageWeight = ((this._options.slope * this._Navigator.getCurrentPageIndex()) + 1) * options.weight;
+            this._currentPageRequiredTime = Math.round(timeForWeight * pageWeight);
             if (this._DevTools.isEnabled()) {
+                var devWeight = this._getCurrentWeight();
+                var devTime = Math.round((this._totalTimeInMillis - courseTotalTime) / devWeight);
                 console.debug("[HzTimeControlComponent] Starting process. Data:", {
-                    totalWeight: this._getCurrentWeight(),
+                    totalWeight: devWeight,
+                    totalWeightWithSlope: totalWeight,
                     totalTimeRequired: this._options.time + " minute/s",
                     totalTimeSpend: this._currentSco.getTotalTimeFormatted(true),
                     currentPage: pageImplementation.getPageName(),
-                    pageWeight: pageWeight,
-                    timeForEachWeight: timeForWeight / 1000 + " seconds",
-                    timeRequiredForPage: this._currentPageRequiredTime / 1000 + " seconds"
+                    pageIndex: this._Navigator.getCurrentPageIndex(),
+                    pageWeight: options.weight,
+                    pageWeightWithSlope: pageWeight,
+                    timeForEachWeight: devTime / 1000 + " seconds",
+                    timeForEachWeightWithSlope: timeForWeight / 1000 + " seconds",
+                    timeRequiredForPage: Math.round(devTime * options.weight) / 1000 + " seconds",
+                    timeRequiredForPageWithSlope: this._currentPageRequiredTime / 1000 + " seconds"
                 });
             }
             pageImplementation.getPage().off("." + HzTimeControlComponent_1.NAMESPACE).on(core_1.PageController.ON_COMPLETE_CHANGE + "." + HzTimeControlComponent_1.NAMESPACE, { instance: this }, this._onPageCompleteChange);
@@ -319,7 +363,8 @@ var HzTimeControlComponent = /** @class */ (function (_super) {
     HzTimeControlComponent.CLASS_WAITING = "hz-time-control__waiting";
     HzTimeControlComponent.CLASS_COMPONENT = "hz-time-control";
     HzTimeControlComponent._DEFAULTS = {
-        scale: false
+        slope: 0,
+        progressbar: {}
     };
     HzTimeControlComponent = HzTimeControlComponent_1 = __decorate([
         core_1.Component({
