@@ -15,6 +15,7 @@ import {
     ScoController
 } from "@haztivity/core";
 import * as moment from "moment";
+import "./ExtendProgressBar";
 @Component(
     {
         name: "HzTimeControl",
@@ -287,7 +288,7 @@ export class HzTimeControlComponent extends ComponentController {
             this._eventEmitter.trigger(HzTimeControlComponent.ON_PROCESS_STARTS,[this._currentPage.getPageName(),this._currentTimeToWait]);
             this._eventEmitter.globalEmitter.trigger(HzTimeControlComponent.ON_PROCESS_STARTS,[this._currentPage.getPageName(),this._currentTimeToWait]);
             this._dateCurrentPageStart = new Date();
-            const courseTotalTime = 0;//this._currentSco.getTotalTime(true);
+            const courseTotalTime = this._currentSco.getTotalTime(true);
             const totalWeight = this._getCurrentWeight(this._options.slope);
             const timeForWeight = Math.round((this._totalTimeInMillis - courseTotalTime) / totalWeight);
             const pageWeight = ((this._options.slope * this._Navigator.getCurrentPageIndex())+1)*options.weight;

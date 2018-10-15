@@ -18,6 +18,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 var core_1 = require("@haztivity/core");
 var moment = require("moment");
+require("./ExtendProgressBar");
 var HzTimeControlComponent = /** @class */ (function (_super) {
     __extends(HzTimeControlComponent, _super);
     function HzTimeControlComponent(_$, _EventEmitterFactory, _Navigator, _PageManager, _DataOptions, _ScormService, _DevTools) {
@@ -252,7 +253,7 @@ var HzTimeControlComponent = /** @class */ (function (_super) {
             this._eventEmitter.trigger(HzTimeControlComponent_1.ON_PROCESS_STARTS, [this._currentPage.getPageName(), this._currentTimeToWait]);
             this._eventEmitter.globalEmitter.trigger(HzTimeControlComponent_1.ON_PROCESS_STARTS, [this._currentPage.getPageName(), this._currentTimeToWait]);
             this._dateCurrentPageStart = new Date();
-            var courseTotalTime = 0; //this._currentSco.getTotalTime(true);
+            var courseTotalTime = this._currentSco.getTotalTime(true);
             var totalWeight = this._getCurrentWeight(this._options.slope);
             var timeForWeight = Math.round((this._totalTimeInMillis - courseTotalTime) / totalWeight);
             var pageWeight = ((this._options.slope * this._Navigator.getCurrentPageIndex()) + 1) * options.weight;

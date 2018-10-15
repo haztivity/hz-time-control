@@ -15,6 +15,7 @@ import {
     ScoController
 } from "@haztivity/core";
 import * as moment from "moment";
+import "./ExtendProgressBar";
 @Component(
     {
         name: "HzTimeControl",
